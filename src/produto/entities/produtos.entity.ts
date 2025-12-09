@@ -1,5 +1,6 @@
 import { IsNotEmpty } from "class-validator";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Categoria } from "../../Categoria/entities/categoria.entity";
 
 @Entity("produtos")
 export class Produtos {
@@ -21,7 +22,8 @@ preco: number;
 descricao: string;
 
 
-
+@ManyToOne(() => Categoria, (categoria) => categoria.produto)
+categoria: Categoria;
 
 
 }   

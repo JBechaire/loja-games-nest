@@ -1,19 +1,20 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ILike, Repository, DeleteResult } from "typeorm";
-import { Produto } from "../entities/produtos.entity";
+import { Produtos } from "../entities/produtos.entity"; 
 import { HttpException, HttpStatus } from "@nestjs/common";
-import { CategoriaService } from "../../categoria/service/categoria.service";
+import { CategoriaService } from "../../Categoria/service/categoria.service";
+
 
 @Injectable()
 export class ProdutoService {
   constructor(
-    @InjectRepository(Produto)
-    private produtoRepository: Repository<Produto>, 
+    @InjectRepository(Produtos)
+    private produtoRepository: Repository<Produtos>, 
     private categoriaService: CategoriaService
   ) {}
 
-  async findAll(): Promise<Produto[]> {
+  async findAll(): Promise<Produtos[]> {
     return await this.produtoRepository.find({
       relations: {
         categoria: true
@@ -21,7 +22,7 @@ export class ProdutoService {
     });
   }
 
-  async findById(id: number): Promise<Produto> {
+  async findById(id: number): Promise<Produtos> {
     const produto = await this.produtoRepository.findOne({
       where: { id },
       relations: {
@@ -35,14 +36,14 @@ export class ProdutoService {
     return produto;
   }
 
- async findAllByNome(nome: string): Promise<Produto[]> {
+ async findAllByNome(nome: string): Promise<Produtos[]> {
         return await this.produtoRepository.find({
             where:{ nome: ILike(`%${nome}%`) },
             relations:{ categoria: true } 
         });
     }
 
-    async create(produto: Produto): Promise<Produto> {
+    async create(produto: Produtos): Promise<Produtos> {
         if (produto.categoria){
             const categoria = await this.categoriaService.findById(produto.categoria.id)
 
@@ -54,8 +55,8 @@ export class ProdutoService {
         return await this.produtoRepository.save(produto);
     }
 
-    async update(produto: Produto): Promise<Produto> {
-        const buscaProduto: Produto = await this.findById(produto.id);
+    async update(produto: Produtos): Promise<Produtos> {
+        const buscaProduto: Produtos = await this.findById(produto.id);
 
         if (!buscaProduto || !produto.id) {
             throw new HttpException('Postagem não encontrada!', HttpStatus.NOT_FOUND);

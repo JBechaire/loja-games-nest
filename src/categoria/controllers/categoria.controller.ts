@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put } from "@nestjs/common";
-import { CategoriaService } from "../services/categoria.service";
 import { Categoria } from "../entities/categoria.entity";
+import { CategoriaService } from "../service/categoria.service";
 
 @Controller("/categorias")
 export class CategoriaController {
-  constructor(private readonly categoriaService: CategoriaService) { }
+  constructor(private readonly categoriaService:CategoriaService) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)

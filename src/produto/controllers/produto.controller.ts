@@ -1,46 +1,35 @@
-import { Controller, Delete, Get, HttpCode, Post, Put } from "@nestjs/common";
-import { Param } from "@nestjs/common/decorators";
-import { ParseIntPipe } from "@nestjs/common/pipes/parse-int.pipe";
-import { HttpStatus } from "@nestjs/common/enums/http-status.enum";
-import { Body } from "@nestjs/common/decorators/http/route-params.decorator";
-import { Produto } from "../entities/produto.entity";
-import { ProdutoService } from "../services/produto.service"; 
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put } from "@nestjs/common";
+import { ProdutoService } from "../service/produtos.service";
 
+@Controller("/produto")
+export class ProdutoController {  
+  constructor(private readonly produtoService: ProdutoService) {}
 
-@Controller()
-export class ProdutoController { }
-constructor(private readonly produtoService: ProdutoService) { }
-
-@Get()
-@HttpCode(HttpCode.OK)
-findAll(): Promise<Produto[]>
-{
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  findAll() {
     return this.produtoService.findAll();
-}
-
-@Get('/:id')
-@HttpCode(HttpCode.OK)
-findById(@Param('id') id: number): Promise<Produto>
-{
+  }
+  @Get("/:id")
+  @HttpCode(HttpStatus.OK)
+  findById(@Param("id", ParseIntPipe) id: number) {
     return this.produtoService.findById(id);
-}
-
-@Post()
-@ControllerHttpCode(HttpCode.CREATED)
-create(@Body() produto: Produto): Promise<Produto>
-{
+  }   
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  create(@Body() produto: any) {
     return this.produtoService.create(produto);
-}
-
-@Put()
-@HttpCode(HttpCode.OK)
-update(@Body() produto: Produto): Promise<Produto>
-{
+  }   
+  @Put()
+  @HttpCode(HttpStatus.OK)
+  update(@Body() produto: any) {      
     return this.produtoService.update(produto);
-}
-
-@Delete('/:id')
-@HttpCode(HttpStatus.NO_CONTENT)
-async delete (@Param('id', ParseIntPipe) id: number) {
-    await this.produtoService.delete(id);
+  }     
+  @Delete("/:id")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  delete(@Param("id", ParseIntPipe) id: number) {
+    return this.produtoService.delete(id);
+  } 
 } 
+
+ 
