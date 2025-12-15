@@ -1,29 +1,36 @@
-import { IsNotEmpty } from "class-validator";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Categoria } from "../../Categoria/entities/categoria.entity";
+import { IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
+import { Column,Entity,ManyToOne,PrimaryGeneratedColumn,UpdateDateColumn,
+} from 'typeorm';
+import { Categoria } from '../../categoria/entities/categoria.entity';
 
-@Entity("produtos")
-export class Produtos {
-    
-@PrimaryGeneratedColumn()
-id: number;
+@Entity({name: 'tb_produtos'})
+export class Produto {
 
-@IsNotEmpty()
-@Column({ length: 100,nullable: false })
-nome: string;
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @IsNotEmpty()
+  @Column({length: 100, nullable: false})
+  nome: string;
+
+  @IsNotEmpty()
+  @Column({length: 1000, nullable: false})
+  descricao: string;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
+  @Column({type: 'decimal', precision: 10, scale: 2})
+  preco: number;
+
+  @Column({length: 5000, nullable: true})
+  foto: string;
+
+  @UpdateDateColumn()
+  data: Date;
 
 
-@IsNotEmpty()
-@Column("decimal", { precision: 10, scale: 2, nullable: false })
-preco: number;  
-
-@IsNotEmpty()
-@Column({ length: 500, nullable: false })
-descricao: string;
-
-
-@ManyToOne(() => Categoria, (categoria) => categoria.produto)
-categoria: Categoria;
-
-
-}   
+  @ManyToOne(() => Categoria, (categoria) => categoria.produtos, {
+    onDelete: 'CASCADE',
+  })
+  categoria: Categoria;
+}
