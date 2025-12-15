@@ -1,86 +1,73 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ILike, Repository, DeleteResult } from "typeorm";
-import { Produtos } from "../entities/produtos.entity"; 
-import { HttpException, HttpStatus } from "@nestjs/common";
-import { CategoriaService } from "../../Categoria/service/categoria.service";
+import { DeleteResult, ILike, Repository } from "typeorm";
+import { Produto } from "../entities/produtos.entity";
 
 
 @Injectable()
 export class ProdutoService {
-  constructor(
-    @InjectRepository(Produtos)
-    private produtoRepository: Repository<Produtos>, 
-    private categoriaService: CategoriaService
-  ) {}
+    constructor(
+        @InjectRepository(Produto)
+        private produtoRepository: Repository<Produto>
+    ) { }
 
-  async findAll(): Promise<Produtos[]> {
-    return await this.produtoRepository.find({
-      relations: {
-        categoria: true
-      }
-    });
-  }
-
-  async findById(id: number): Promise<Produtos> {
-    const produto = await this.produtoRepository.findOne({
-      where: { id },
-      relations: {
-        categoria: true
-      }
-    });
-
-    if (!produto)
-      throw new HttpException("Produto não encontrado!", HttpStatus.NOT_FOUND);
-
-    return produto;
-  }
-
- async findAllByNome(nome: string): Promise<Produtos[]> {
+     //criar
+    async create(produto: Produto): Promise<Produto> {
+        return await this.produtoRepository.save(produto);
+    }
+        
+    //todos
+    async findAll(): Promise<Produto[]> {
         return await this.produtoRepository.find({
-            where:{ nome: ILike(`%${nome}%`) },
-            relations:{ categoria: true } 
+            relations: {
+                categoria: true
+            }
         });
     }
 
-    async create(produto: Produtos): Promise<Produtos> {
-        if (produto.categoria){
-            const categoria = await this.categoriaService.findById(produto.categoria.id)
-
-            if (!categoria){
-           
-                throw new HttpException('Categoria não encontrada!', HttpStatus.NOT_FOUND);
+    //por id
+    async findById(id: number): Promise<Produto> {
+        let produto = await this.produtoRepository.findOne({
+            where: { id },
+            relations: {
+                categoria: true
             }
-        }
-        return await this.produtoRepository.save(produto);
+        });
+
+        if (!produto)
+            throw new HttpException('Produto não encontrado!', HttpStatus.NOT_FOUND);
+
+        return produto;
     }
 
-    async update(produto: Produtos): Promise<Produtos> {
-        const buscaProduto: Produtos = await this.findById(produto.id);
-
-        if (!buscaProduto || !produto.id) {
-            throw new HttpException('Postagem não encontrada!', HttpStatus.NOT_FOUND);
-        }
-
-        if (produto.categoria){// vendedor de q? tenis?
-            //então me ve o de tal marca...
-            const categoria = await this.categoriaService.findById(produto.categoria.id)
-
-            if (!categoria){
-                throw new HttpException('Categoria não encontrada!', HttpStatus.NOT_FOUND);
+    //por nome específico
+    async findByNome(nome: string): Promise<Produto[]> {
+        return await this.produtoRepository.find({
+            where: {
+                nome: ILike(`%${nome}%`) // ILike faz busca case-insensitive (ignorando maiúsculas/minúsculas)
+            },
+            relations: {
+                categoria: true
             }
-        }
-        return await this.produtoRepository.save(produto);
+        });
     }
 
+    //atualizar
+    async update(produto: Produto): Promise<Produto> {
+        let buscaProduto = await this.findById(produto.id);
+
+        if (!buscaProduto || !produto.id)
+            throw new HttpException('Produto não encontrado!', HttpStatus.NOT_FOUND);
+
+        return await this.produtoRepository.save(produto);
+    }
+    
     async delete(id: number): Promise<DeleteResult> {
-        const buscaProduto = await this.findById(id);
+        let buscaProduto = await this.findById(id);
 
-        // Se a postagem NÃO existir, mostre uma Exceção com o status: 404 Not Found
         if (!buscaProduto)
-            throw new HttpException('Produto não encontrada!', HttpStatus.NOT_FOUND);
+            throw new HttpException('Produto não encontrado!', HttpStatus.NOT_FOUND);
 
         return await this.produtoRepository.delete(id);
     }
-
 }
